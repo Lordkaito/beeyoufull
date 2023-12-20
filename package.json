@@ -12,15 +12,15 @@
     "typecheck": "contentlayer build && tsc --noEmit",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
-    "check": "pnpm lint && pnpm typecheck && pnpm format:check",
+    "check": "npm lint && npm typecheck && npm format:check",
     "db:generate": "dotenv drizzle-kit generate:pg",
     "db:push": "dotenv drizzle-kit push:pg",
     "db:introspect": "dotenv drizzle-kit introspect:pg",
     "db:studio": "dotenv drizzle-kit studio --verbose",
-    "shadcn:add": "pnpm dlx shadcn-ui@latest add",
+    "shadcn:add": "npm dlx shadcn-ui@latest add",
     "email:dev": "email dev --dir src/components/emails -p 3001",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe --latest",
-    "unlighthouse": "pnpm dlx unlighthouse --site https://skateshop.sadmn.com"
+    "unlighthouse": "npm dlx unlighthouse --site https://skateshop.sadmn.com"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.27.2",
@@ -64,7 +64,7 @@
     "drizzle-orm": "^0.29.1",
     "embla-carousel-react": "8.0.0-rc15",
     "mysql2": "^3.6.5",
-    "next": "14.0.4-canary.36",
+    "next": "latest",
     "next-contentlayer": "^0.3.4",
     "next-themes": "^0.2.1",
     "openai": "^4.20.1",
