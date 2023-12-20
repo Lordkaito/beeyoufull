@@ -17,6 +17,13 @@ model users {
   updatedAt DateTime @updatedAt
 }
 
+model emailUsers {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model addresses {
   id         Int       @id(map: "addresses_id_pk") @default(autoincrement())
   line1      String?   @db.VarChar(191)
