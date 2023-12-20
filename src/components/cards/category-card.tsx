@@ -1,7 +1,7 @@
 import * as React from "react"
 import { unstable_noStore as noStore } from "next/cache"
 import Link from "next/link"
-import { db } from "@/db"
+import db from "@/db"
 import { products } from "@/db/schema"
 import type { Category } from "@/types"
 import { eq, sql } from "drizzle-orm"
@@ -22,15 +22,15 @@ interface CategoryCardProps {
 export async function CategoryCard({ category }: CategoryCardProps) {
   noStore()
 
-  const productCount = await db
-    .select({
-      count: sql<number>`count(*)`.mapWith(Number),
-    })
-    .from(products)
-    .where(eq(products.category, category.title))
-    .execute()
-    .then((res) => res[0]?.count ?? 0)
-    .catch(() => 0)
+  const productCount = await db.products.count()
+    // .select({
+    //   count: sql<number>`count(*)`.mapWith(Number),
+    // })
+    // .from(products)
+    // .where(eq(products.category, category.title))
+    // .execute()
+    // .then((res) => res[0]?.count ?? 0)
+    // .catch(() => 0)
 
   return (
     <Link key={category.title} href={`/categories/${category.title}`}>

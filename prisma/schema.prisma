@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String?  @db.VarChar(191)
+  lastName  String?  @db.VarChar(191)
+  password  String  @db.VarChar(191)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model addresses {
+  id         Int       @id(map: "addresses_id_pk") @default(autoincrement())
+  line1      String?   @db.VarChar(191)
+  line2      String?   @db.VarChar(191)
+  city       String?   @db.VarChar(191)
+  state      String?   @db.VarChar(191)
+  postalCode String?   @db.VarChar(191)
+  country    String?   @db.VarChar(191)
+  createdAt  DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model carts {
+  id              Int       @id(map: "carts_id_pk") @default(autoincrement())
+  paymentIntentId String?   @db.VarChar(191)
+  clientSecret    String?   @db.VarChar(191)
+  items           Json?     @default("null") @db.Json
+  createdAt       DateTime? @default(now()) @db.Timestamp(6)
+  closed          Int       @default(0) @db.SmallInt
+}
+
+model email_preferences {
+  id            Int       @id(map: "email_preferences_id_pk") @default(autoincrement())
+  userId        String?   @db.VarChar(191)
+  email         String    @db.VarChar(191)
+  token         String    @db.VarChar(191)
+  newsletter    Int       @default(0) @db.SmallInt
+  marketing     Int       @default(0) @db.SmallInt
+  transactional Int       @default(0) @db.SmallInt
+  createdAt     DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model orders {
+  id                        Int       @id(map: "orders_id_pk") @default(autoincrement())
+  storeId                   Int
+  items                     Json?     @default("null") @db.Json
+  amount                    Decimal   @default(0.00) @db.Decimal(10, 2)
+  stripePaymentIntentId     String    @db.VarChar(191)
+  stripePaymentIntentStatus String    @db.VarChar(191)
+  name                      String?   @db.VarChar(191)
+  email                     String?   @db.VarChar(191)
+  addressId                 Int?
+  createdAt                 DateTime? @default(now()) @db.Timestamp(6)
+  quantity                  Int?
+}
+
+model payments {
+  id                     Int       @id(map: "payments_id_pk") @default(autoincrement())
+  storeId                Int
+  stripeAccountId        String    @db.VarChar(191)
+  stripeAccountCreatedAt Int?
+  stripeAccountExpiresAt Int?
+  detailsSubmitted       Int       @default(0) @db.SmallInt
+  createdAt              DateTime? @default(now()) @db.Timestamp(6)
+}
+
+enum enum_category {
+  ACCESSORIES
+  ART
+  BABY
+  BEAUTY
+  BOOKS
+  CLOTHING
+  ELECTRONICS
+  FOOD
+  GARDEN
+  HEALTH
+  HOME
+  JEWELRY
+  MUSIC
+  OFFICE
+  OUTDOORS
+  PETS
+  SPORTS
+  TOYS
+  VEHICLES
+  OTHER
+}
+
+model products {
+  id          Int       @id(map: "products_id_pk") @default(autoincrement())
+  name        String    @db.VarChar(191)
+  description String?   @db.VarChar(191)
+  images     Json?     @default("null") @db.Json
+  price       Decimal   @default(0.00) @db.Decimal(10, 2)
+  inventory   Int       @default(0)
+  storeId     Int
+  tags        Json?     @default("null") @db.Json
+  category    enum_category @default(OTHER)
+  subcategory String?   @db.VarChar(191)
+  createdAt   DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model stores {
+  id          Int       @id(map: "stores_id_pk") @default(autoincrement())
+  userId      String
+  name        String    @db.VarChar(191)
+  description String?   @db.VarChar(191)
+  slug        String?   @db.VarChar(191)
+  createdAt   DateTime? @default(now()) @db.Timestamp(6)
+  active      Int       @default(0) @db.SmallInt
+  stripeAccountId String? @db.VarChar(191)
+}
