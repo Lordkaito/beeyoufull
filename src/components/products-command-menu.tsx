@@ -90,7 +90,7 @@ export function ProductsCommandMenu() {
             title={isMacOs() ? "Command" : "Control"}
             className="no-underline"
           >
-            {isMacOs() ? "⌘" : "Ctrl"}
+            {isMacOs() ? <kbd> ⌘ </kbd> : <kbd> Ctrl </kbd>}
           </abbr>
           K
         </kbd>

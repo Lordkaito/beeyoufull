@@ -45,7 +45,7 @@ export default async function StoresPage() {
     })
     .from(stores)
     .leftJoin(products, eq(products.storeId, stores.id))
-    .groupBy(stores.id)
+    .groupBy(stores.id, stores.stripeAccountId)
     .orderBy(desc(stores.stripeAccountId), desc(sql<number>`count(*)`))
     .where(eq(stores.userId, user.id))
 

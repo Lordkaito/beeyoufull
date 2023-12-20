@@ -150,7 +150,7 @@ export async function POST(req: Request) {
             postalCode: stripeAddress?.postal_code,
           })
 
-          if (!newAddress.insertId) throw new Error("No address created.")
+          // if (!newAddress.insertId) throw new Error("No address created.")
 
           // Create new order in db
           await db.insert(orders).values({
@@ -165,7 +165,7 @@ export async function POST(req: Request) {
             stripePaymentIntentStatus: paymentIntentSucceeded?.status,
             name: paymentIntentSucceeded?.shipping?.name,
             email: paymentIntentSucceeded?.receipt_email,
-            addressId: Number(newAddress.insertId),
+            // addressId: Number(newAddress.insertId),
           })
 
           // Update product inventory in db

@@ -38,7 +38,7 @@ export default async function IndexPage() {
         .from(products)
         .limit(8)
         .leftJoin(stores, eq(products.storeId, stores.id))
-        .groupBy(products.id)
+        .groupBy(products.id, stores.stripeAccountId)
         .orderBy(
           desc(sql<number>`count(${stores.stripeAccountId})`),
           desc(sql<number>`count(${products.images})`),

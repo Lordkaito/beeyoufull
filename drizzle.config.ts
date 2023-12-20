@@ -1,11 +1,11 @@
-import { env } from "@/env.mjs"
-import type { Config } from "drizzle-kit"
+import { defineConfig } from "drizzle-kit"
 
-export default {
-  schema: "./src/db/schema.ts",
-  driver: "mysql2",
-  out: "./drizzle",
+export default defineConfig({
+  schema: "./drizzle/schema.ts",
+  driver: "pg",
   dbCredentials: {
-    uri: env.DATABASE_URL,
+    connectionString: process.env.DATABASE_URL || "",
   },
-} satisfies Config
+  verbose: true,
+  strict: true,
+})

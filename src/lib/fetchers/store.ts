@@ -44,7 +44,7 @@ export async function getStores(rawInput: z.infer<typeof getStoresSchema>) {
               : undefined
           )
         )
-        .groupBy(stores.id)
+        .groupBy(stores.id, stores.stripeAccountId)
         .orderBy(
           input.sort === "stripeAccountId.asc"
             ? asc(stores.stripeAccountId)

@@ -1,19 +1,19 @@
 import type { CartItem, CheckoutItem, StoredFile } from "@/types"
-import { relations } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm"
 import {
   boolean,
   decimal,
-  int,
+  integer,
   json,
-  mysqlEnum,
-  mysqlTable,
+  pgEnum,
+  pgTable,
   serial,
   text,
   timestamp,
   varchar,
-} from "drizzle-orm/mysql-core"
+} from "drizzle-orm/pg-core"
 
-export const stores = mysqlTable("stores", {
+export const stores = pgTable("stores", {
   id: serial("id").primaryKey(),
   userId: varchar("userId", { length: 191 }).notNull(),
   name: varchar("name", { length: 191 }).notNull(),
@@ -22,7 +22,7 @@ export const stores = mysqlTable("stores", {
   active: boolean("active").notNull().default(false),
   stripeAccountId: varchar("stripeAccountId", { length: 191 }),
   createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
+  updatedAt: timestamp("updatedAt").default(sql`now()`),
 })
 
 export type Store = typeof stores.$inferSelect
@@ -33,27 +33,27 @@ export const storesRelations = relations(stores, ({ many }) => ({
   payments: many(payments),
 }))
 
-export const products = mysqlTable("products", {
+export const categoriesEnum = pgEnum("categories", [
+  "skateboards",
+  "clothing",
+  "shoes",
+  "accessories",
+])
+
+export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 191 }).notNull(),
   description: text("description"),
   images: json("images").$type<StoredFile[] | null>().default(null),
-  category: mysqlEnum("category", [
-    "skateboards",
-    "clothing",
-    "shoes",
-    "accessories",
-  ])
-    .notNull()
-    .default("skateboards"),
+  category: categoriesEnum("category").notNull(),
   subcategory: varchar("subcategory", { length: 191 }),
   price: decimal("price", { precision: 10, scale: 2 }).notNull().default("0"),
-  inventory: int("inventory").notNull().default(0),
-  rating: int("rating").notNull().default(0),
+  inventory: integer("inventory").notNull().default(0),
+  rating: integer("rating").notNull().default(0),
   tags: json("tags").$type<string[] | null>().default(null),
-  storeId: int("storeId").notNull(),
+  storeId: integer("storeId").notNull(),
   createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
+  updatedAt: timestamp("updatedAt").default(sql`now()`),
 })
 
 export type Product = typeof products.$inferSelect
@@ -64,20 +64,20 @@ export const productsRelations = relations(products, ({ one }) => ({
 }))
 
 // Original source: https://github.com/jackblatch/OneStopShop/blob/main/db/schema.ts
-export const carts = mysqlTable("carts", {
+export const carts = pgTable("carts", {
   id: serial("id").primaryKey(),
   paymentIntentId: varchar("paymentIntentId", { length: 191 }),
   clientSecret: varchar("clientSecret", { length: 191 }),
   items: json("items").$type<CartItem[] | null>().default(null),
   closed: boolean("closed").notNull().default(false),
   createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
+  updatedAt: timestamp("updatedAt").default(sql`now()`),
 })
 
 export type Cart = typeof carts.$inferSelect
 export type NewCart = typeof carts.$inferInsert
 
-export const emailPreferences = mysqlTable("email_preferences", {
+export const emailPreferences = pgTable("email_preferences", {
   id: serial("id").primaryKey(),
   userId: varchar("userId", { length: 191 }),
   email: varchar("email", { length: 191 }).notNull(),
@@ -86,22 +86,22 @@ export const emailPreferences = mysqlTable("email_preferences", {
   marketing: boolean("marketing").notNull().default(false),
   transactional: boolean("transactional").notNull().default(false),
   createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
+  updatedAt: timestamp("updatedAt").default(sql`now()`),
 })
 
 export type EmailPreference = typeof emailPreferences.$inferSelect
 export type NewEmailPreference = typeof emailPreferences.$inferInsert
 
 // Original source: https://github.com/jackblatch/OneStopShop/blob/main/db/schema.ts
-export const payments = mysqlTable("payments", {
+export const payments = pgTable("payments", {
   id: serial("id").primaryKey(),
-  storeId: int("storeId").notNull(),
+  storeId: integer("storeId").notNull(),
   stripeAccountId: varchar("stripeAccountId", { length: 191 }).notNull(),
-  stripeAccountCreatedAt: int("stripeAccountCreatedAt"),
-  stripeAccountExpiresAt: int("stripeAccountExpiresAt"),
+  stripeAccountCreatedAt: integer("stripeAccountCreatedAt"),
+  stripeAccountExpiresAt: integer("stripeAccountExpiresAt"),
   detailsSubmitted: boolean("detailsSubmitted").notNull().default(false),
   createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
+  updatedAt: timestamp("updatedAt").default(sql`now()`),
 })
 
 export type Payment = typeof payments.$inferSelect
@@ -112,11 +112,11 @@ export const paymentsRelations = relations(payments, ({ one }) => ({
 }))
 
 // Original source: https://github.com/jackblatch/OneStopShop/blob/main/db/schema.ts
-export const orders = mysqlTable("orders", {
+export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
-  storeId: int("storeId").notNull(),
+  storeId: integer("storeId").notNull(),
   items: json("items").$type<CheckoutItem[] | null>().default(null),
-  quantity: int("quantity"),
+  quantity: integer("quantity"),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull().default("0"),
   stripePaymentIntentId: varchar("stripePaymentIntentId", {
     length: 191,
@@ -126,16 +126,16 @@ export const orders = mysqlTable("orders", {
   }).notNull(),
   name: varchar("name", { length: 191 }),
   email: varchar("email", { length: 191 }),
-  addressId: int("addressId"),
+  addressId: integer("addressId"),
   createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
+  updatedAt: timestamp("updatedAt").default(sql`now()`),
 })
 
 export type Order = typeof orders.$inferSelect
 export type NewOrder = typeof orders.$inferInsert
 
 // Original source: https://github.com/jackblatch/OneStopShop/blob/main/db/schema.ts
-export const addresses = mysqlTable("addresses", {
+export const addresses = pgTable("addresses", {
   id: serial("id").primaryKey(),
   line1: varchar("line1", { length: 191 }),
   line2: varchar("line2", { length: 191 }),
@@ -144,7 +144,7 @@ export const addresses = mysqlTable("addresses", {
   postalCode: varchar("postalCode", { length: 191 }),
   country: varchar("country", { length: 191 }),
   createdAt: timestamp("createdAt").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
+  updatedAt: timestamp("updatedAt").default(sql`now()`),
 })
 
 export type Address = typeof addresses.$inferSelect

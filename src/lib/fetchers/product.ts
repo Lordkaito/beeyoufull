@@ -60,7 +60,7 @@ export async function getProducts(rawInput: z.infer<typeof getProductsSchema>) {
               : undefined
           )
         )
-        .groupBy(products.id)
+        .groupBy(products.id, stores.stripeAccountId)
         .orderBy(
           column && column in products
             ? order === "asc"

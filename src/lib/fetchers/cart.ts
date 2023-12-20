@@ -45,7 +45,7 @@ export async function getCart(input?: {
         input?.storeId ? eq(products.storeId, input.storeId) : undefined
       )
     )
-    .groupBy(products.id)
+    .groupBy(products.id, stores.stripeAccountId)
     .orderBy(desc(stores.stripeAccountId), asc(products.createdAt))
     .execute()
     .then((items) => {

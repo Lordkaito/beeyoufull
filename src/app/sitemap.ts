@@ -28,7 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
     .from(products)
     .leftJoin(stores, eq(products.storeId, stores.id))
-    .groupBy(products.id)
+    .groupBy(products.id, stores.stripeAccountId, products.images)
     .orderBy(
       desc(sql<number>`count(${stores.stripeAccountId})`),
       desc(sql<number>`count(${products.images})`),

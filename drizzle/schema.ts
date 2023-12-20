@@ -1,21 +1,24 @@
 import { sql } from "drizzle-orm"
 import {
-  AnyMySqlColumn,
   decimal,
-  int,
+  pgTable,
+  integer,
   json,
-  mysqlEnum,
-  mysqlSchema,
-  mysqlTable,
+  pgEnum,
   primaryKey,
   serial,
   text,
   timestamp,
-  tinyint,
   varchar,
-} from "drizzle-orm/mysql-core"
+  smallint,
+} from "drizzle-orm/pg-core"
 
-export const addresses = mysqlTable(
+let productsEnum = pgEnum("products_category", ["skateboards",
+"clothing",
+"shoes",
+"accessories",])
+
+export const addresses = pgTable(
   "addresses",
   {
     id: serial("id").notNull(),
@@ -29,12 +32,12 @@ export const addresses = mysqlTable(
   },
   (table) => {
     return {
-      addressesId: primaryKey(table.id),
+      addressesId: primaryKey({ columns: [table.id] }),
     }
   }
 )
 
-export const carts = mysqlTable(
+export const carts = pgTable(
   "carts",
   {
     id: serial("id").notNull(),
@@ -42,39 +45,39 @@ export const carts = mysqlTable(
     clientSecret: varchar("clientSecret", { length: 191 }),
     items: json("items").default("null"),
     createdAt: timestamp("createdAt", { mode: "string" }).defaultNow(),
-    closed: tinyint("closed").default(0).notNull(),
+    closed: smallint("closed").default(0).notNull(),
   },
   (table) => {
     return {
-      cartsId: primaryKey(table.id),
+      cartsId: primaryKey({ columns: [table.id] }),
     }
   }
 )
 
-export const emailPreferences = mysqlTable(
+export const emailPreferences = pgTable(
   "email_preferences",
   {
     id: serial("id").notNull(),
     userId: varchar("userId", { length: 191 }),
     email: varchar("email", { length: 191 }).notNull(),
     token: varchar("token", { length: 191 }).notNull(),
-    newsletter: tinyint("newsletter").default(0).notNull(),
-    marketing: tinyint("marketing").default(0).notNull(),
-    transactional: tinyint("transactional").default(0).notNull(),
+    newsletter: smallint("newsletter").default(0).notNull(),
+    marketing: smallint("marketing").default(0).notNull(),
+    transactional: smallint("transactional").default(0).notNull(),
     createdAt: timestamp("createdAt", { mode: "string" }).defaultNow(),
   },
   (table) => {
     return {
-      emailPreferencesId: primaryKey(table.id),
+      emailPreferencesId: primaryKey({ columns: [table.id] }),
     }
   }
 )
 
-export const orders = mysqlTable(
+export const orders = pgTable(
   "orders",
   {
     id: serial("id").notNull(),
-    storeId: int("storeId").notNull(),
+    storeId: integer("storeId").notNull(),
     items: json("items").default("null"),
     amount: decimal("amount", { precision: 10, scale: 2 })
       .default("0.00")
@@ -87,36 +90,36 @@ export const orders = mysqlTable(
     }).notNull(),
     name: varchar("name", { length: 191 }),
     email: varchar("email", { length: 191 }),
-    addressId: int("addressId"),
+    addressId: integer("addressId"),
     createdAt: timestamp("createdAt", { mode: "string" }).defaultNow(),
-    quantity: int("quantity"),
+    quantity: integer("quantity"),
   },
   (table) => {
     return {
-      ordersId: primaryKey(table.id),
+      ordersId: primaryKey({ columns: [table.id] }),
     }
   }
 )
 
-export const payments = mysqlTable(
+export const payments = pgTable(
   "payments",
   {
     id: serial("id").notNull(),
-    storeId: int("storeId").notNull(),
+    storeId: integer("storeId").notNull(),
     stripeAccountId: varchar("stripeAccountId", { length: 191 }).notNull(),
-    stripeAccountCreatedAt: int("stripeAccountCreatedAt"),
-    stripeAccountExpiresAt: int("stripeAccountExpiresAt"),
-    detailsSubmitted: tinyint("detailsSubmitted").default(0).notNull(),
+    stripeAccountCreatedAt: integer("stripeAccountCreatedAt"),
+    stripeAccountExpiresAt: integer("stripeAccountExpiresAt"),
+    detailsSubmitted: smallint("detailsSubmitted").default(0).notNull(),
     createdAt: timestamp("createdAt", { mode: "string" }).defaultNow(),
   },
   (table) => {
     return {
-      paymentsId: primaryKey(table.id),
+      paymentsId: primaryKey({ columns: [table.id] }),
     }
   }
 )
 
-export const products = mysqlTable(
+export const products = pgTable(
   "products",
   {
     id: serial("id").notNull(),
@@ -126,29 +129,22 @@ export const products = mysqlTable(
     price: decimal("price", { precision: 10, scale: 2 })
       .default("0.00")
       .notNull(),
-    inventory: int("inventory").default(0).notNull(),
-    rating: int("rating").default(0).notNull(),
-    storeId: int("storeId").notNull(),
+    inventory: integer("inventory").default(0).notNull(),
+    rating: integer("rating").default(0).notNull(),
+    storeId: integer("storeId").notNull(),
     createdAt: timestamp("createdAt", { mode: "string" }).defaultNow(),
     tags: json("tags").default("null"),
-    category: mysqlEnum("category", [
-      "skateboards",
-      "clothing",
-      "shoes",
-      "accessories",
-    ])
-      .default("skateboards")
-      .notNull(),
+    category: productsEnum("products_category").notNull(),
     subcategory: varchar("subcategory", { length: 191 }),
   },
   (table) => {
     return {
-      productsId: primaryKey(table.id),
+      productsId: primaryKey({ columns: [table.id] }),
     }
   }
 )
 
-export const stores = mysqlTable(
+export const stores = pgTable(
   "stores",
   {
     id: serial("id").notNull(),
@@ -157,12 +153,22 @@ export const stores = mysqlTable(
     description: text("description"),
     slug: text("slug"),
     createdAt: timestamp("createdAt", { mode: "string" }).defaultNow(),
-    active: tinyint("active").default(0).notNull(),
+    active: smallint("active").default(0).notNull(),
     stripeAccountId: varchar("stripeAccountId", { length: 191 }),
   },
   (table) => {
     return {
-      storesId: primaryKey(table.id),
+      storesId: primaryKey({ columns: [table.id] }),
     }
   }
 )
+
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 191 }).notNull(),
+  firstName: varchar("firstName", { length: 191 }),
+  lastName: varchar("lastName", { length: 191 }),
+  password: varchar("password", { length: 191 }),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").default(sql`now()`),
+})
